@@ -18,6 +18,25 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [permissions.IsAuthenticated]  # Авторизованный пользоватеть
 
+    @action(detail=False, methods=['post'])
+    def bind_telegram(self, request):
+        """Привязка Telegram чата к пользователю"""
+        user = request.user
+        telegram_chat_id = request.data.get('telegram_chat_id')
+
+        if not telegram_chat_id:
+            return Response(
+                {'error': 'telegram_chat_id is required'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        user.telegram_chat_id = telegram_chat_id
+        user.save()
+
+        return Response({
+            'status': 'Telegram chat ID успешно привязан',
+            'telegram_chat_id': user.telegram_chat_id,
+        })
+
 
 class RegisterView(generics.CreateAPIView):  # Позволяет создавать нового пользователя (зарегистрировать) POST
     queryset = User.objects.all()
