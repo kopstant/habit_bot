@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'habit',
     'rest_framework',
     'django_filters',
-    'drf-yasg',
+    'drf_yasg',
     'django_celery_beat',
 ]
 
