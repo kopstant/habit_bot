@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from habit.models import Habit
-from django.core.exceptions import ValidationError
 
 
 class HabitSerializer(serializers.ModelSerializer):

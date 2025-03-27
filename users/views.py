@@ -2,7 +2,7 @@ from django.contrib.auth import get_user_model
 from rest_framework import viewsets, status, permissions
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from tutorial.quickstart.serializers import UserSerializer
+from users.serializers import UserSerializer
 from rest_framework import generics
 
 from users.serializers import RegisterSerializer

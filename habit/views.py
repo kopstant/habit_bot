@@ -1,3 +1,5 @@
+from django.core.exceptions import PermissionDenied
+
 from habit.paginators import CustomPaginator
 from habit.models import Habit
 from habit.serializers import HabitSerializer
@@ -24,3 +26,15 @@ class HabitViewSet(viewsets.ModelViewSet):
         При создании привычки, привязываем к ней текущего пользователя.
         """
         serializer.save(user=self.request.user)
+
+    def update(self, request, *args, **kwargs):
+        habit = self.get_object()
+        if habit.is_public:
+            raise PermissionDenied("You cannot edit a public habit.")
+        return super().update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        habit = self.get_object()
+        if habit.is_public:
+            raise PermissionDenied("You cannot delete a public habit.")
+        return super().destroy(request, *args, **kwargs)

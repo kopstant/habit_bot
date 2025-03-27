@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django_filters',
     'drf_yasg',
     'django_celery_beat',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -37,6 +38,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware'
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -125,9 +127,17 @@ CELERY_RESULT_BACKEND = os.getenv('LOCATION')  # URL-адрес брокера �
 CELERY_TIMEZONE = "Europe/Moscow"  # Часовой пояс для работы Celery
 CELERY_TASK_TRACK_STARTED = True  # Флаг отслеживания выполнения задач
 CELERY_TASK_TIME_LIMIT = 30 * 60  # Максимальное время на выполнение задачи
-# CELERY_BEAT_SCHEDULE = {
-#     'task-name': {
-#         'task': 'lms.tasks.deactivate_inactive_users',  # Путь к задаче
-#         'schedule': crontab(hour=0, minute=0),
-#     },
-# }
+CELERY_BEAT_SCHEDULE = {
+    'check-habits-every-minute': {
+        'task': 'habits.tasks.check_habits_for_reminders',
+        'schedule': crontab(minute='*/1'),  # Каждую минуту
+    },
+}
+
+TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
+
+CORS_ALLOWED_ORIGINS = ["http://localhost:8000", ]
+
+CSRF_TRUSTED_ORIGINS = ["http://localhost:8000", ]
+
+CORS_ALLOW_ALL_ORIGINS = False

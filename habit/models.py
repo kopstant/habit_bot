@@ -68,3 +68,12 @@ class Habit(models.Model):
         verbose_name = 'Привычка'
         verbose_name_plural = 'Привычки'
         ordering = ['-created_at']
+
+
+class Completion(models.Model):  # Для теста
+    habit = models.ForeignKey(
+        Habit,
+        related_name='completions',
+        on_delete=models.CASCADE,
+    )
+    date = models.DateField()

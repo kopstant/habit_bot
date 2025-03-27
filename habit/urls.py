@@ -7,6 +7,4 @@ app_name = 'habit'
 router = DefaultRouter()
 router.register(r'habits', HabitViewSet, basename='user')
 
-urlpatterns = [
-                  path('', include(router.urls)),
-              ] + router.urls
+urlpatterns = [path('', include(router.urls)),] + router.urls
