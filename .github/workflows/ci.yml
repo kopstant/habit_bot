@@ -9,6 +9,32 @@ on:
 jobs:
   ci:
     runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: habit_bot
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - uses: actions/checkout@v4
 
@@ -24,14 +50,53 @@ jobs:
       - name: Update dependencies
         run: poetry install
 
+      - name: Create .env file
+        run: |
+          cat > .env << EOL
+          POSTGRES_DB=habit_bot
+          POSTGRES_USER=postgres
+          POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
+          POSTGRES_HOST=localhost
+          POSTGRES_PORT=5432
+          SECRET_KEY=django-insecure-test-secret-key-1234567890
+          DEBUG=True
+          ALLOWED_HOSTS=localhost,127.0.0.1
+          REDIS_HOST=redis
+          REDIS_PORT=6379
+          REDIS_DB=0
+          LOCATION=redis://redis:6379/0
+          CELERY_BROKER_URL=redis://redis:6379/0
+          CELERY_RESULT_BACKEND=redis://redis:6379/0
+          TELEGRAM_BOT_TOKEN=test_token
+          EOL
+
       - name: Format code with black
         run: poetry run black .
 
       - name: Run code formatting check
         run: poetry run black . --check
 
+      - name: Run linter
+        run: |
+          poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      - name: Check import sorting
+        run: |
+          poetry run isort .
+
       - name: Run tests
-        run: poetry run python manage.py test --settings=config.test_settings --noinput
+        env:
+          POSTGRES_NAME: habit_bot
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          POSTGRES_HOST: localhost
+          POSTGRES_PORT: 5432
+          SECRET_KEY: django-insecure-test-secret-key-1234567890
+          DEBUG: "True"
+          TELEGRAM_BOT_TOKEN: test_token
+        run: |
+          poetry run python manage.py test --settings=config.test_settings --noinput
 
       - name: Deploy to production
         if: github.ref == 'refs/heads/main'
