@@ -10,21 +10,6 @@ jobs:
   test:
     runs-on: ubuntu-latest
     
-    services:
-      postgres:
-        image: postgres:16
-        env:
-          POSTGRES_DB: habit_bot
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
     steps:
     - uses: actions/checkout@v3
     
@@ -40,9 +25,6 @@ jobs:
 
     - name: Install Dependencies
       run: poetry install
-
-    - name: Wait for PostgreSQL
-      run: sleep 5
 
     - name: Check code formatting
       run: |
@@ -66,7 +48,7 @@ jobs:
         POSTGRES_DB=habit_bot
         POSTGRES_USER=postgres
         POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
-        POSTGRES_HOST=localhost
+        POSTGRES_HOST=db
         POSTGRES_PORT=5432
         SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
         DEBUG=True
@@ -76,25 +58,9 @@ jobs:
         STRIPE_API_KEY=${{ secrets.STRIPE_API_KEY }}
         EOL
 
-    - name: Build and start containers
+    - name: Run tests with Docker Compose
       run: |
-        docker compose build
-        docker compose up -d
-
-    - name: Run tests
-      env:
-        POSTGRES_NAME: habit_bot
-        POSTGRES_USER: postgres
-        POSTGRES_PASSWORD: ${{ secrets.DB_PASSWORD }}
-        POSTGRES_HOST: localhost
-        POSTGRES_PORT: 5432
-        SECRET_KEY: ${{ secrets.DJANGO_SECRET_KEY }}
-        DEBUG: "True"
-      run: |
-        poetry run python manage.py test
-
-    - name: Stop containers
-      run: docker compose down
+        docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
 
   deploy:
     needs: test
