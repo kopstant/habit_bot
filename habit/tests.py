@@ -5,7 +5,7 @@ from django.db import connection
 from django.test import TestCase
 from django.utils import timezone
 from habit.models import Completion, Habit
-from habit.task import check_habits_for_reminders
+from habit.tasks import check_habits_for_reminders
 from users.models import CustomUser
 
 
@@ -39,8 +39,8 @@ class CheckHabitReminderTaskTest(TestCase):
             periodicity=1
         )
 
-    @patch('habit.task.timezone')
-    @patch('habit.task.send_telegram_reminder.delay')
+    @patch('habit.tasks.timezone')
+    @patch('habit.tasks.send_telegram_reminder.delay')
     def test_habit_reminder_sent(self, mock_send_reminder, mock_timezone):
         from datetime import datetime, date, time, timedelta
 
@@ -58,7 +58,7 @@ class CheckHabitReminderTaskTest(TestCase):
 
         mock_send_reminder.assert_called_once_with(self.habit.id, self.user.id)
 
-    @patch('habit.task.send_telegram_reminder.delay')
+    @patch('habit.tasks.send_telegram_reminder.delay')
     def test_habit_reminder_skipped_if_not_due(self, mock_send_reminder):
         """Уведомление не отправляется, если периодичность не выполнена"""
         Completion.objects.create(
@@ -70,8 +70,8 @@ class CheckHabitReminderTaskTest(TestCase):
 
         mock_send_reminder.assert_not_called()
 
-    @patch('habit.task.timezone')
-    @patch('habit.task.send_telegram_reminder.delay')
+    @patch('habit.tasks.timezone')
+    @patch('habit.tasks.send_telegram_reminder.delay')
     def test_habit_reminder_sent_on_first_run(self, mock_send_reminder, mock_timezone):
         """Уведомление отправляется, если у привычки нет записей в Completion (первый запуск)"""
         mock_now = datetime.combine(date.today(), time(8, 0))

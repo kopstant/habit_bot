@@ -79,6 +79,10 @@ jobs:
         TELEGRAM_BOT_TOKEN=test_token
         EOL
 
+    - name: Create static directories
+      run: |
+        mkdir -p static staticfiles
+
     - name: Run tests
       env:
         POSTGRES_DB: habit_bot_test
