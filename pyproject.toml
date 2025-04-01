@@ -32,6 +32,7 @@ gevent = "^24.11.1"
 flake8 = "^7.1.2"
 django-cors-headers = "^4.7.0"
 black = "^24.2.0"
+isort = "^5.13.2"
 
 
 [build-system]

@@ -39,12 +39,13 @@ jobs:
     - name: Install dependencies
       run: |
         poetry install --no-root
-        poetry install black --no-root
+        poetry install black isort --no-root
 
     - name: Run linting
       run: |
         poetry run flake8 .
         poetry run black . --check
+        poetry run isort . --check-only
 
     - name: Run tests
       env:

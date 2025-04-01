@@ -892,6 +892,20 @@ files = [
 ]
 
 [[package]]
+name = "isort"
+version = "5.13.2"
+description = "A Python utility / library to sort Python imports."
+optional = false
+python-versions = ">=3.8.0"
+files = [
+    {file = "isort-5.13.2-py3-none-any.whl", hash = "sha256:8ca5e72a8d85860d5a3fa69b8745237f2939afe12dbf656afbcb47fe72d947a6"},
+    {file = "isort-5.13.2.tar.gz", hash = "sha256:48fdfcb9face5d58a4f6dde2e72a1fb8dcaf8ab26f95ab49fab84c2ddefb0109"},
+]
+
+[package.extras]
+colors = ["colorama (>=0.4.6)"]
+
+[[package]]
 name = "kombu"
 version = "5.5.2"
 description = "Messaging library for Python."
@@ -1630,4 +1644,4 @@ testing = ["coverage[toml]", "zope.event", "zope.testing"]
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.12"
-content-hash = "33c0b7636341ef96847f5d609afc78f83bfed783e229b90401eff1f0d35cc6f5"
+content-hash = "6fa28b51a88cab78df1b1e81983e1e21d2213fda3028c58a18454815448a4bb4"
