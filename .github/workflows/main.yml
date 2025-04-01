@@ -9,7 +9,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     services:
       postgres:
         image: postgres:16
@@ -27,32 +27,37 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up Python
       uses: actions/setup-python@v3
       with:
         python-version: '3.12'
-        
+
     - name: Install Poetry
       run: |
         curl -sSL https://install.python-poetry.org | python3 -
         echo "$HOME/.local/bin" >> $GITHUB_PATH
 
-    - name: Cache Poetry dependencies
-      uses: actions/cache@v3
-      with:
-        path: ~/.cache/pypoetry
-        key: poetry-${{ runner.os }}-${{ hashFiles('**/poetry.lock') }}
-        restore-keys: |
-          poetry-${{ runner.os }}-
-
     - name: Install Dependencies
-      run: |
-        poetry lock --no-update
-        poetry install
+      run: poetry install
 
     - name: Wait for PostgreSQL
-      run: until pg_isready -h localhost -p 5432; do sleep 1; done
+      run: sleep 5
+
+    - name: Create .env file
+      run: |
+        cat > .env << EOL
+        POSTGRES_DB=habit_bot
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
+        POSTGRES_HOST=localhost
+        POSTGRES_PORT=5432
+        SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
+        DEBUG=True
+        ALLOWED_HOSTS=localhost,127.0.0.1
+        REDIS_HOST=redis
+        REDIS_PORT=6379
+        EOL
 
     - name: Check code formatting
       run: |
@@ -67,28 +72,10 @@ jobs:
       run: |
         poetry run isort . --check-only
 
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Create .env file
-      run: |
-        cat > .env << EOL
-        POSTGRES_DB=django_drf_hw
-        POSTGRES_USER=postgres
-        POSTGRES_PASSWORD=${{ secrets.DB_PASSWORD }}
-        POSTGRES_HOST=localhost
-        POSTGRES_PORT=5432
-        SECRET_KEY=${{ secrets.DJANGO_SECRET_KEY }}
-        DEBUG=True
-        ALLOWED_HOSTS=localhost,127.0.0.1
-        REDIS_HOST=redis
-        REDIS_PORT=6379
-        EOL
-
     - name: Build and start containers
       run: |
         docker compose build
-        docker compose up -d --build --wait
+        docker compose up -d
 
     - name: Run tests
       env:
@@ -101,10 +88,6 @@ jobs:
         DEBUG: "True"
       run: |
         poetry run python manage.py test
-
-    - name: Show logs on failure
-      if: failure()
-      run: docker compose logs
 
     - name: Stop containers
       run: docker compose down
