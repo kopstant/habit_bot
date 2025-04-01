@@ -2,17 +2,18 @@ import os
 from datetime import timedelta
 from pathlib import Path
 from celery.schedules import crontab
-from dotenv.main import load_dotenv
+from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env')
 
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv("SECRET_KEY")
 
-DEBUG = True if os.getenv('DEBUG') == 'True' else False
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["158.160.172.203", "localhost", "127.0.0.1"]
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -123,31 +124,28 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
+# Cache and Celery configuration
 CACHES_ENABLED = True
 if CACHES_ENABLED:
-    REDIS_HOST = os.getenv('REDIS_HOST', 'redis')
-    REDIS_PORT = os.getenv('REDIS_PORT', '6379')
-    REDIS_DB = os.getenv('REDIS_DB', '0')
-
     CACHES = {
-        'default': {
-            'BACKEND': 'django_redis.cache.RedisCache',
-            'LOCATION': os.getenv('LOCATION', f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}'),
-            'OPTIONS': {
-                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
-            }
+        "default": {
+            "BACKEND": "django.core.cache.backends.redis.RedisCache",
+            "LOCATION": "redis://redis:6379/0",
         }
     }
 
-# Настройки для Celery
-CELERY_BROKER_URL = os.getenv('CELERY_BROKER_URL', f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}')
-CELERY_RESULT_BACKEND = os.getenv('CELERY_RESULT_BACKEND', f'redis://{REDIS_HOST}:{REDIS_PORT}/{REDIS_DB}')
-CELERY_TIMEZONE = "Europe/Moscow"  # Часовой пояс для работы Celery
-CELERY_TASK_TRACK_STARTED = True  # Флаг отслеживания выполнения задач
+# Celery Configuration
+CELERY_BROKER_URL = "redis://redis:6379/0"
+CELERY_RESULT_BACKEND = "redis://redis:6379/0"
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
+CELERY_TASK_TRACK_STARTED = True
 CELERY_TASK_TIME_LIMIT = 30 * 60  # Максимальное время на выполнение задачи
 CELERY_BEAT_SCHEDULE = {
     'check-habits-every-minute': {
-        'task': 'habits.tasks.check_habits_for_reminders',
+        'task': 'habit.tasks.check_habits_for_reminders',
         'schedule': crontab(minute='*/1'),  # Каждую минуту
     },
 }

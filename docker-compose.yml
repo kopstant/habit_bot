@@ -17,6 +17,8 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - habit_bot_network
 
   nginx:
     image: nginx:1.25
@@ -28,6 +30,8 @@ services:
       - "80:80"
     depends_on:
       - web
+    networks:
+      - habit_bot_network
 
   db:
     image: postgres:16
@@ -39,15 +43,23 @@ services:
       POSTGRES_PASSWORD: b20d5fcd
       POSTGRES_HOST: db
       POSTGRES_PORT: 5432
+    networks:
+      - habit_bot_network
 
   redis:
     image: redis:7.2.3
     ports:
-      - "6380:6379"
+      - "6378:6379"
+    networks:
+      - habit_bot_network
 
   celery:
     build: .
-    command: celery -A config worker -l INFO
+    command: >
+      sh -c "celery -A config worker 
+             --broker=redis://redis:6379/0 
+             --backend=redis://redis:6379/0 
+             -l INFO"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -57,10 +69,16 @@ services:
     depends_on:
       - web
       - redis
+    networks:
+      - habit_bot_network
 
   celery-beat:
     build: .
-    command: celery -A config beat -l INFO
+    command: >
+      sh -c "celery -A config beat 
+             --broker=redis://redis:6379/0 
+             --backend=redis://redis:6379/0 
+             -l INFO"
     volumes:
       - .:/app
       - static_volume:/app/staticfiles
@@ -70,6 +88,12 @@ services:
     depends_on:
       - web
       - redis
+    networks:
+      - habit_bot_network
+
+networks:
+  habit_bot_network:
+    driver: bridge
 
 volumes:
   postgres_data:
