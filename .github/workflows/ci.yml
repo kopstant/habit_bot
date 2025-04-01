@@ -1,0 +1,107 @@
+name: Django CI/CD
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.12'
+        
+    - name: Install Poetry
+      run: |
+        curl -sSL https://install.python-poetry.org | python3 -
+        echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+    - name: Update poetry.lock
+      run: poetry lock
+
+    - name: Install Dependencies
+      run: poetry install
+
+    - name: Format code with black
+      run: |
+        poetry run black .
+
+    - name: Check code formatting
+      run: |
+        poetry run black . --check
+    
+    - name: Run linter
+      run: |
+        poetry run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        poetry run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+    - name: Sort imports with isort
+      run: |
+        poetry run isort .
+
+    - name: Check import sorting
+      run: |
+        poetry run isort . --check-only
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+
+    - name: Create .env file
+      run: |
+        cat > .env << EOL
+        # Django
+        SECRET_KEY=django-insecure-1234567890
+        DEBUG=True
+
+        # Database
+        POSTGRES_DB=habit_bot_test
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=postgres
+        POSTGRES_HOST=localhost
+        POSTGRES_PORT=5432
+
+        # Redis
+        REDIS_HOST=redis
+        REDIS_PORT=6379
+        REDIS_DB=0
+        LOCATION=redis://redis:6379/0
+        CELERY_BROKER_URL=redis://redis:6379/0
+        CELERY_RESULT_BACKEND=redis://redis:6379/0
+
+        # Telegram
+        TELEGRAM_BOT_TOKEN=test_token
+        EOL
+
+    - name: Create static directories
+      run: |
+        mkdir -p static staticfiles
+
+    - name: Run tests
+      env:
+        POSTGRES_DB: habit_bot_test
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_HOST: localhost
+        POSTGRES_PORT: 5432
+        TELEGRAM_BOT_TOKEN: test_token
+      run: |
+        poetry run python manage.py test --settings=config.test_settings --noinput
+
+  deploy:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploy to production"
+        # Здесь будут команды для деплоя 
