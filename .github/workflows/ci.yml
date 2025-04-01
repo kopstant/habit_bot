@@ -88,7 +88,7 @@ jobs:
         POSTGRES_PORT: 5432
         TELEGRAM_BOT_TOKEN: test_token
       run: |
-        python manage.py test --settings=config.test_settings --noinput
+        poetry run python manage.py test --settings=config.test_settings --noinput
 
   deploy:
     needs: test
