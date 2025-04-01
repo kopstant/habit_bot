@@ -5,6 +5,9 @@ from habit.models import Habit
 from users.models import CustomUser
 from config import settings
 import logging
+from datetime import datetime
+from django.apps import apps
+from .services import send_telegram_message
 
 logger = logging.getLogger(__name__)
 
@@ -47,20 +50,20 @@ def send_telegram_reminder(habit_id, user_id):
 
 @shared_task
 def check_habits_for_reminders():
-    now = timezone.now()
-    current_time = now.time().replace(second=0, microsecond=0)
-
-    # Убедимся, что запрос отсортирован правильно, чтобы избежать ошибки с DISTINCT ON
-    habits = Habit.objects.filter(time=current_time).select_related('user').order_by('user_id', 'time')
-
+    """
+    Проверяет привычки и отправляет напоминания через Telegram
+    """
+    # Получаем модель Habit только когда приложение готово
+    Habit = apps.get_model('habit', 'Habit')
+    
+    current_time = datetime.now()
+    
+    # Получаем все привычки, которые нужно проверить
+    habits = Habit.objects.filter(
+        time__hour=current_time.hour,
+        time__minute=current_time.minute
+    )
+    
     for habit in habits:
-        if not habit.user.telegram_chat_id:
-            continue
-
-        last_completed = habit.completions.order_by('-date').first()
-        if last_completed:
-            days_passed = (now.date() - last_completed.date).days
-            if days_passed < habit.periodicity:
-                continue
-
-        send_telegram_reminder.delay(habit.id, habit.user.id)
+        if habit.user.telegram_chat_id:
+            send_telegram_reminder.delay(habit.id, habit.user.id)
