@@ -8,6 +8,10 @@ services:
       - .:/lms
     env_file:
       - .env
+    environment:
+      - POSTGRES_DB=${NAME}
+      - POSTGRES_USER=${USER}
+      - POSTGRES_PASSWORD=${PASSWORD}
     depends_on:
       - db
       - redis
