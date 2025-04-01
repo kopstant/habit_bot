@@ -39,14 +39,14 @@ class CheckHabitReminderTaskTest(TestCase):
             periodicity=1
         )
 
-    @patch('habit.tasks.timezone')
+    @patch('habit.tasks.datetime')
     @patch('habit.tasks.send_telegram_reminder.delay')
-    def test_habit_reminder_sent(self, mock_send_reminder, mock_timezone):
+    def test_habit_reminder_sent(self, mock_send_reminder, mock_datetime):
         from datetime import datetime, date, time, timedelta
 
+        # Мокаем время
         mock_now = datetime.combine(date.today(), time(8, 0))
-        mock_timezone.now.return_value = mock_now
-        mock_timezone.localtime.return_value = mock_now  # на всякий случай
+        mock_datetime.now.return_value = mock_now
 
         # Создаём completion "вчера"
         Completion.objects.create(
@@ -70,13 +70,13 @@ class CheckHabitReminderTaskTest(TestCase):
 
         mock_send_reminder.assert_not_called()
 
-    @patch('habit.tasks.timezone')
+    @patch('habit.tasks.datetime')
     @patch('habit.tasks.send_telegram_reminder.delay')
-    def test_habit_reminder_sent_on_first_run(self, mock_send_reminder, mock_timezone):
+    def test_habit_reminder_sent_on_first_run(self, mock_send_reminder, mock_datetime):
         """Уведомление отправляется, если у привычки нет записей в Completion (первый запуск)"""
+        # Мокаем время
         mock_now = datetime.combine(date.today(), time(8, 0))
-        mock_timezone.now.return_value = mock_now
-        mock_timezone.localtime.return_value = mock_now
+        mock_datetime.now.return_value = mock_now
 
         # Используем self.habit из setUp, а не создаём новую
         habit_id = self.habit.id

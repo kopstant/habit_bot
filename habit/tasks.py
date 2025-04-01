@@ -66,5 +66,4 @@ def check_habits_for_reminders():
     
     for habit in habits:
         if habit.user.telegram_chat_id:
-            message = f"Напоминание о привычке: {habit.action}"
-            send_telegram_message(habit.user.telegram_chat_id, message)
+            send_telegram_reminder.delay(habit.id, habit.user.id)
