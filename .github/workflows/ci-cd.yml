@@ -55,15 +55,17 @@ jobs:
 
     - name: Create .env file
       run: |
-        echo "SECRET_KEY='django-insecure-test-key'" >> .env
-        echo "DEBUG=False" >> .env
-        echo "NAME=habit_bot" >> .env
-        echo "USER=postgres" >> .env
-        echo "PASSWORD=b20d5fcd" >> .env
-        echo "HOST=db" >> .env
-        echo "PORT=5432" >> .env
-        echo "LOCATION=redis://redis:6379/0" >> .env
-        echo "TELEGRAM_BOT_TOKEN=test-token" >> .env
+        cat > .env << EOL
+        SECRET_KEY=your-secret-key-here
+        DEBUG=True
+        NAME=habit_bot
+        USER=postgres
+        PASSWORD=b20d5fcd
+        HOST=db
+        PORT=5432
+        LOCATION=redis://redis:6379/0
+        TELEGRAM_BOT_TOKEN=your-telegram-bot-token
+        EOL
 
     - name: Run tests with Docker Compose
       run: docker compose --profile test up --build --abort-on-container-exit
