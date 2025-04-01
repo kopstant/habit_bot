@@ -17,7 +17,7 @@ class HabitViewSet(viewsets.ModelViewSet):
         Если параметр public не передается, то возвращаются привычки, связанные с авторизованным пользователем.
         Каждый пользователь видит только свои привычки.
         """
-        if self.action == 'list' and self.request.query_params.get('public'):
+        if self.action == "list" and self.request.query_params.get("public"):
             return Habit.objects.filter(is_public=True)
         return Habit.objects.filter(user=self.request.user)
 

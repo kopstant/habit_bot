@@ -2,9 +2,9 @@ from .settings import *
 
 # Используем SQLite для тестов
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': ':memory:',
+    "default": {
+        "ENGINE": "django.db.backends.sqlite3",
+        "NAME": ":memory:",
     }
 }
 
@@ -13,4 +13,7 @@ CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 # Отключаем отправку уведомлений в тестах
-TELEGRAM_BOT_TOKEN = 'test_token' 
+TELEGRAM_BOT_TOKEN = "test_token"
+
+# Добавляем SECRET_KEY для тестов
+SECRET_KEY = "django-insecure-test-secret-key-1234567890"
