@@ -4,6 +4,9 @@ FROM python:3.12-slim
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
+# Создаем непривилегированного пользователя
+RUN useradd -m appuser
+
 # Устанавливаем необходимые системные зависимости
 RUN apt-get update && apt-get install -y \
     curl \
@@ -19,16 +22,15 @@ ENV PATH="/root/.local/bin:$PATH"
 RUN poetry config virtualenvs.create false
 
 # Копируем файлы зависимостей
-COPY pyproject.toml poetry.lock ./
+COPY --chown=appuser:appuser pyproject.toml poetry.lock ./
 
 # Устанавливаем зависимости
 RUN poetry install --no-interaction --no-ansi --no-root
 
 # Копируем остальные файлы проекта
-COPY . .
+COPY --chown=appuser:appuser . .
 
-# Создаем непривилегированного пользователя
-RUN useradd -m appuser && chown -R appuser:appuser /app
+# Переключаемся на непривилегированного пользователя
 USER appuser
 
 # Открываем порт
