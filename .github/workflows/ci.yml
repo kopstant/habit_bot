@@ -15,7 +15,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12'
 
       - name: Install Poetry
         run: |
@@ -23,6 +23,9 @@ jobs:
 
       - name: Update dependencies
         run: poetry install
+
+      - name: Format code with black
+        run: poetry run black .
 
       - name: Run code formatting check
         run: poetry run black . --check
