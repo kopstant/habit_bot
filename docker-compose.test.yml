@@ -8,10 +8,6 @@ services:
       - .:/lms
     env_file:
       - .env
-    environment:
-      - POSTGRES_DB=${NAME}
-      - POSTGRES_USER=${USER}
-      - POSTGRES_PASSWORD=${PASSWORD}
     depends_on:
       - db
       - redis
@@ -22,10 +18,11 @@ services:
       - POSTGRES_DB=${NAME}
       - POSTGRES_USER=${USER}
       - POSTGRES_PASSWORD=${PASSWORD}
+      - PGPASSWORD=${PASSWORD}
     ports:
       - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${USER} && psql -U ${USER} -d ${NAME} -c '\\du'"]
+      test: ["CMD-SHELL", "env | grep POSTGRES && PGPASSWORD=${PASSWORD} pg_isready -U ${USER} && PGPASSWORD=${PASSWORD} psql -U ${USER} -d ${NAME} -c '\\du'"]
       interval: 5s
       timeout: 5s
       retries: 5
