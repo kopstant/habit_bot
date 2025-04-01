@@ -20,10 +20,10 @@ class CheckHabitReminderTaskTest(TestCase):
 
         # Создаём пользователя
         self.user = CustomUser.objects.create_user(
-            email='check@user.com',
-            username='checkuser',
-            password='12345',
-            telegram_chat_id='987654321'
+            email="check@user.com",
+            username="checkuser",
+            password="12345",
+            telegram_chat_id="987654321",
         )
 
         # Устанавливаем фиксированное время для теста (убираем возможное дублирование)
@@ -32,15 +32,15 @@ class CheckHabitReminderTaskTest(TestCase):
         # Создаём одну привычку
         self.habit = Habit.objects.create(
             user=self.user,
-            place='дома',
+            place="дома",
             time=self.fixed_time,
-            action='разминаться',
+            action="разминаться",
             duration=20,
-            periodicity=1
+            periodicity=1,
         )
 
-    @patch('habit.tasks.datetime')
-    @patch('habit.tasks.send_telegram_reminder.delay')
+    @patch("habit.tasks.datetime")
+    @patch("habit.tasks.send_telegram_reminder.delay")
     def test_habit_reminder_sent(self, mock_send_reminder, mock_datetime):
         from datetime import datetime, date, time, timedelta
 
@@ -50,28 +50,24 @@ class CheckHabitReminderTaskTest(TestCase):
 
         # Создаём completion "вчера"
         Completion.objects.create(
-            habit=self.habit,
-            date=date.today() - timedelta(days=1)
+            habit=self.habit, date=date.today() - timedelta(days=1)
         )
 
         check_habits_for_reminders()
 
         mock_send_reminder.assert_called_once_with(self.habit.id, self.user.id)
 
-    @patch('habit.tasks.send_telegram_reminder.delay')
+    @patch("habit.tasks.send_telegram_reminder.delay")
     def test_habit_reminder_skipped_if_not_due(self, mock_send_reminder):
         """Уведомление не отправляется, если периодичность не выполнена"""
-        Completion.objects.create(
-            habit=self.habit,
-            date=timezone.now().date()
-        )
+        Completion.objects.create(habit=self.habit, date=timezone.now().date())
 
         check_habits_for_reminders()
 
         mock_send_reminder.assert_not_called()
 
-    @patch('habit.tasks.datetime')
-    @patch('habit.tasks.send_telegram_reminder.delay')
+    @patch("habit.tasks.datetime")
+    @patch("habit.tasks.send_telegram_reminder.delay")
     def test_habit_reminder_sent_on_first_run(self, mock_send_reminder, mock_datetime):
         """Уведомление отправляется, если у привычки нет записей в Completion (первый запуск)"""
         # Мокаем время

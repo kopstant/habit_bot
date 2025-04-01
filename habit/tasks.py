@@ -22,7 +22,7 @@ def send_telegram_reminder(habit_id, user_id):
         user = CustomUser.objects.get(id=user_id)
 
         if not user.telegram_chat_id:
-            logger.warning(f'У пользователя {user.email} не привязан Telegram')
+            logger.warning(f"У пользователя {user.email} не привязан Telegram")
             return
 
         message = (
@@ -34,18 +34,18 @@ def send_telegram_reminder(habit_id, user_id):
         )
 
         bot_token = settings.TELEGRAM_BOT_TOKEN
-        url = f'https://api.telegram.org/bot{bot_token}/sendMessage'
+        url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
         data = {
-            'chat_id': user.telegram_chat_id,
-            'text': message,
-            'parse_mode': 'Markdown',
+            "chat_id": user.telegram_chat_id,
+            "text": message,
+            "parse_mode": "Markdown",
         }
 
         response = requests.post(url, data=data)
         response.raise_for_status()
 
     except Exception as e:
-        logger.error(f'Ошибка отправки в Telegram: {str(e)}')
+        logger.error(f"Ошибка отправки в Telegram: {str(e)}")
 
 
 @shared_task
@@ -54,16 +54,15 @@ def check_habits_for_reminders():
     Проверяет привычки и отправляет напоминания через Telegram
     """
     # Получаем модель Habit только когда приложение готово
-    Habit = apps.get_model('habit', 'Habit')
-    
+    Habit = apps.get_model("habit", "Habit")
+
     current_time = datetime.now()
-    
+
     # Получаем все привычки, которые нужно проверить
     habits = Habit.objects.filter(
-        time__hour=current_time.hour,
-        time__minute=current_time.minute
+        time__hour=current_time.hour, time__minute=current_time.minute
     )
-    
+
     for habit in habits:
         if habit.user.telegram_chat_id:
             send_telegram_reminder.delay(habit.id, habit.user.id)
