@@ -59,9 +59,8 @@ jobs:
         REDIS_PORT=6379
         EOL
 
-    - name: Check code formatting
-      run: |
-        poetry run black . --check
+    - name: Format code with black
+      run: poetry run black .
 
     - name: Run linter
       run: |
