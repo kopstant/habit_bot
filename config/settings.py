@@ -127,7 +127,7 @@ SIMPLE_JWT = {
     "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
-# Cache and Celery configuration
+# Cache and Celery configurate
 CACHES_ENABLED = True
 if CACHES_ENABLED:
     CACHES = {
