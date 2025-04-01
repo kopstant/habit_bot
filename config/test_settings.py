@@ -14,3 +14,6 @@ CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 # Отключаем отправку уведомлений в тестах
 TELEGRAM_BOT_TOKEN = "test_token"
+
+# Добавляем SECRET_KEY для тестов
+SECRET_KEY = "django-insecure-test-secret-key-1234567890"
