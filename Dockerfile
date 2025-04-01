@@ -12,11 +12,14 @@ RUN apt-get update && apt-get install -y \
 # Устанавливаем Poetry
 RUN curl -sSL https://install.python-poetry.org | python3 -
 
-# Копируем файлы зависимостей
-COPY pyproject.toml poetry.lock ./
+# Добавляем Poetry в PATH
+ENV PATH="/root/.local/bin:$PATH"
 
 # Настраиваем Poetry
 RUN poetry config virtualenvs.create false
+
+# Копируем файлы зависимостей
+COPY pyproject.toml poetry.lock ./
 
 # Устанавливаем зависимости
 RUN poetry install --no-interaction --no-ansi --no-root
