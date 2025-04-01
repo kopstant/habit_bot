@@ -48,7 +48,7 @@ cd habit-bot
 
 2. Создайте файл .env на основе .env.sample:
 ```bash
-cp .env.sample .env
+cp ..env.sample ..env
 ```
 
 3. Запустите проект с помощью Docker Compose:
