@@ -64,11 +64,11 @@ jobs:
         NAME=habit_bot
         USER=postgres
         PASSWORD=${{ secrets.DB_PASSWORD }}
-        HOST=localhost
+        HOST=db
         PORT=5432
 
         # Redis
-        LOCATION=redis://127.0.0.1:6379/0
+        LOCATION=redis://redis:6379/0
 
         # Telegram
         TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }}
