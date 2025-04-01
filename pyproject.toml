@@ -1,9 +1,14 @@
 [tool.poetry]
 name = "habit-bot"
 version = "0.1.0"
-description = ""
+description = "Бот для отслеживания привычек"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
+packages = [
+    { include = "habit" },
+    { include = "users" },
+    { include = "config" }
+]
 
 [tool.poetry.dependencies]
 python = "^3.12"
