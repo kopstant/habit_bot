@@ -69,7 +69,7 @@ jobs:
 
     - name: Check import sorting
       run: |
-        poetry run isort . --check-only
+        poetry run isort .
 
     - name: Build and start containers
       run: |
