@@ -1,6 +1,35 @@
 # Habit Bot
 
-Проект для отслеживания и управления привычками.
+Бот для отслеживания привычек, построенный на Django.
+
+## Описание
+
+Habit Bot - это веб-приложение, которое помогает пользователям отслеживать и развивать полезные привычки. Приложение построено с использованием Django, PostgreSQL, Redis и Celery.
+
+## Технологии
+
+- Python 3.12
+- Django 5.1.7
+- PostgreSQL
+- Redis
+- Celery
+- Docker
+
+## Установка
+
+1. Клонируйте репозиторий
+2. Создайте файл .env на основе .env.sample
+3. Запустите с помощью Docker Compose:
+   ```bash
+   docker compose up -d
+   ```
+
+## Разработка
+
+Для запуска тестов:
+```bash
+docker compose -f docker-compose.test.yml up --build --abort-on-container-exit
+```
 
 ## Требования
 
