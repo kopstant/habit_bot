@@ -61,11 +61,11 @@ jobs:
         DEBUG=True
 
         # Database
-        NAME=habit_bot
-        USER=postgres
-        PASSWORD=b20d5fcd
-        HOST=db
-        PORT=5432
+        POSTGRES_DB=habit_bot_test
+        POSTGRES_USER=postgres
+        POSTGRES_PASSWORD=postgres
+        POSTGRES_HOST=localhost
+        POSTGRES_PORT=5432
 
         # Redis
         REDIS_HOST=redis
@@ -76,41 +76,28 @@ jobs:
         CELERY_RESULT_BACKEND=redis://redis:6379/0
 
         # Telegram
-        TELEGRAM_BOT_TOKEN=your-telegram-bot-token
-
-        # Email
-        EMAIL_HOST=smtp.gmail.com
-        EMAIL_PORT=587
-        EMAIL_USE_TLS=True
-        EMAIL_HOST_USER=your-email@gmail.com
-        EMAIL_HOST_PASSWORD=your-email-password
-
-        # Stripe
-        STRIPE_PUBLIC_KEY=your-stripe-public-key
-        STRIPE_SECRET_KEY=your-stripe-secret-key
-        STRIPE_WEBHOOK_SECRET=your-stripe-webhook-secret
+        TELEGRAM_BOT_TOKEN=test_token
         EOL
 
-    - name: Run tests with Docker Compose
-      run: docker compose --profile test up --build --abort-on-container-exit
+    - name: Run tests
+      env:
+        POSTGRES_DB: habit_bot_test
+        POSTGRES_USER: postgres
+        POSTGRES_PASSWORD: postgres
+        POSTGRES_HOST: localhost
+        POSTGRES_PORT: 5432
+        TELEGRAM_BOT_TOKEN: test_token
+      run: |
+        python manage.py test --settings=config.test_settings --noinput
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
     steps:
-    - name: Deploy to server
-      uses: appleboy/ssh-action@master
-      with:
-        host: ${{ secrets.SERVER_HOST }}
-        username: ${{ secrets.SERVER_USERNAME }}
-        key: ${{ secrets.SSH_PRIVATE_KEY }}
-        port: 22
-        debug: true
-        script: |
-          cd /var/www/habit_bot
-          git pull origin main
-          docker compose down
-          docker compose up -d --build
-          
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to production
+      run: |
+        echo "Deploy to production"
+        # Здесь будут команды для деплоя 

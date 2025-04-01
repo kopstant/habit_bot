@@ -97,6 +97,18 @@ services:
     networks:
       - habit_bot_network
 
+  migrations:
+    build: .
+    command: sh /app/scripts/migrate.sh
+    volumes:
+      - .:/app
+    env_file:
+      - .env
+    depends_on:
+      - db
+    networks:
+      - habit_bot_network
+
 networks:
   habit_bot_network:
     driver: bridge
