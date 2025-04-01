@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "habit-bot"
 version = "0.1.0"
-description = "Бот для отслеживания привычек"
+description = "Bot for tracking habits"
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 packages = [
@@ -31,9 +31,15 @@ django-redis = "^5.4.0"
 gevent = "^24.11.1"
 flake8 = "^7.1.2"
 django-cors-headers = "^4.7.0"
+gunicorn = "^23.0.0"
+
+[tool.poetry.group.dev.dependencies]
 black = "^24.2.0"
 isort = "^5.13.2"
-
+mypy = "^1.8.0"
+pytest = "^8.0.2"
+pytest-django = "^4.8.0"
+whitenoise = "^6.6.0"
 
 [build-system]
 requires = ["poetry-core"]
