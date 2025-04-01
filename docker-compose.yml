@@ -33,8 +33,12 @@ services:
     image: postgres:16
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - .env
+    environment:
+      POSTGRES_DB: habit_bot
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: b20d5fcd
+      POSTGRES_HOST: db
+      POSTGRES_PORT: 5432
 
   redis:
     image: redis:7.2.3
